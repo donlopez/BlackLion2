@@ -13,9 +13,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use((req, res, next) => {
+  console.log(`Request URL: ${req.url}`);
+  next();
+});
+
+
 // Serve static CSS and JS files
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
+app.use(express.static('public'));
 
 // Middleware setup
 app.set('view engine', 'ejs');
