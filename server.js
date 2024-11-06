@@ -11,7 +11,7 @@ import { Strategy as LocalStrategy } from 'passport-local';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware to log requests
 app.use((req, res, next) => {
