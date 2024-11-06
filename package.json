@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "devStart": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "npm install && npm run lint && npm run test",
+    "lint": "eslint .",
+    "test": "mocha test/*.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +17,7 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.21.1",
     "express-ejs-layouts": "^2.5.1",
@@ -26,7 +30,10 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "dotenv": "^16.4.5",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "mocha": "^10.8.2",
     "nodemon": "^3.1.7"
   },
   "keywords": []
