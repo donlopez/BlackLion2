@@ -32,7 +32,7 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || 'default_secret',
     resave: false,
-    saveUninitialized: false, // Trailing comma added
+    saveUninitialized: false // Trailing comma added
   })
 );
 app.use(passport.initialize());
@@ -47,7 +47,7 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0, // Trailing comma added
+  queueLimit: 0 // Trailing comma added
 });
 
 console.log('Connected to AWS RDS Database');
@@ -124,7 +124,7 @@ app.post(
   passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
-    failureFlash: true,
+    failureFlash: true
   })
 );
 
@@ -176,10 +176,11 @@ app.get('/event/:id/edit', ensureAuthenticated, async (req, res) => {
   try {
     const [events] = await pool.query('SELECT * FROM Event WHERE id = ? AND created_by = ?', [req.params.id, req.user.id]);
     if (events.length === 0) return res.redirect('/');
-    res.render('edit-event.ejs', { user: req.user, event: events[0] });
+    return res.render('edit-event.ejs', { user: req.user, event: events[0] });
   } catch (err) {
     console.error('Error fetching event for edit:', err);
     res.redirect('/');
+    return null; // Add a return statement here for consistent return
   }
 });
 
