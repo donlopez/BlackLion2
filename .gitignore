@@ -13,3 +13,13 @@ Thumbs.db
 
 # Ignore package-lock.json (Optional, if you don't want to track it)
 package-lock.json
+
+# Ignore Python packages
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.eggs/
+.venv/
+venv/
+env/
+.env/

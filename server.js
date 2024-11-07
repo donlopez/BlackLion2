@@ -89,13 +89,21 @@ function ensureAuthenticated(req, res, next) {
 // Home route showing user-specific events
 app.get('/', ensureAuthenticated, async (req, res) => {
   try {
-    const [events] = await pool.query('SELECT * FROM Event WHERE created_by = ?', [req.user.id]);
+    const [events] = await pool.query(
+      `SELECT Event.id, Event.name, Event.event_date, Event.start_time, Event.end_time, Event.guest_count, 
+              Event.details, Venue.name AS venue_name 
+       FROM Event 
+       LEFT JOIN Venue ON Event.venue_id = Venue.id 
+       WHERE Event.created_by = ?`,
+      [req.user.id]
+    );
     res.render('index.ejs', { user: req.user, events });
   } catch (err) {
     console.error('Error fetching events:', err);
     res.redirect('/login');
   }
 });
+
 
 // Dashboard route
 app.get('/dashboard', ensureAuthenticated, async (req, res) => {
