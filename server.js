@@ -105,23 +105,23 @@ app.get('/', ensureAuthenticated, async (req, res) => {
 });
 
 
-// Dashboard route
-app.get('/dashboard', ensureAuthenticated, async (req, res) => {
+app.get('/event/:id/dashboard', ensureAuthenticated, async (req, res) => {
+  const eventId = req.params.id;
+
   try {
     const [events] = await pool.query(
       `SELECT Event.name AS event_name, Venue.name AS venue_name, Event.guest_count 
        FROM Event 
        LEFT JOIN Venue ON Event.venue_id = Venue.id 
-       WHERE Event.created_by = ? 
-       ORDER BY Event.id DESC LIMIT 1`,
-      [req.user.id]
+       WHERE Event.id = ?`,
+      [eventId]
     );
 
     const event = events.length > 0 ? events[0] : { event_name: 'No Events', venue_name: 'N/A', guest_count: 0 };
     res.render('dashboard.ejs', { user: req.user, event });
   } catch (err) {
-    console.error('Error loading dashboard:', err);
-    res.redirect('/');
+    console.error('Error loading dashboard for event:', err);
+    res.send("Database error occurred");
   }
 });
 
