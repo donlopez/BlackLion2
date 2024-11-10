@@ -1,10 +1,24 @@
 version: 0.2
 
 phases:
-  install:
+  pre_build:
     commands:
-      - npm install
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 654654449828.dkr.ecr.us-east-1.amazonaws.com
   build:
     commands:
-      - npm run build
-      - npm test
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t blacklion-app .
+      - docker tag blacklion-app:latest 654654449828.dkr.ecr.us-east-1.amazonaws.com/blacklion:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push 654654449828.dkr.ecr.us-east-1.amazonaws.com/blacklion:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"blacklion-app","imageUri":"%s"}]' 654654449828.dkr.ecr.us-east-1.amazonaws.com/blacklion:latest > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
