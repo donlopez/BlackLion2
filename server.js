@@ -157,18 +157,16 @@ app.get('/edit-profile', ensureAuthenticated, (req, res) => {
   res.render('edit-profile.ejs', { user: req.user, message: '' });
 });
 
-// Handle profile update
 app.post('/edit-profile', ensureAuthenticated, async (req, res) => {
   try {
     // Fetch the current user data to retain unmodified values
     const [currentUserData] = await pool.query('SELECT * FROM Person WHERE id = ?', [req.user.id]);
     const currentUser = currentUserData[0];
-
+    
     // Destructure the request body and fall back to existing values if fields are empty
     const {
       first_name = currentUser.first_name,
       last_name = currentUser.last_name,
-      dob = currentUser.dob,
       email = currentUser.email,
       phone = currentUser.phone,
       password
@@ -177,16 +175,16 @@ app.post('/edit-profile', ensureAuthenticated, async (req, res) => {
     // Hash the password only if it was provided; otherwise, keep the existing password
     const hashedPassword = password ? await bcrypt.hash(password, 10) : currentUser.password;
 
-    // Update the database with modified or retained values
+    // Update the database with modified or retained values (excluding dob)
     await pool.query(
-      'UPDATE Person SET first_name = ?, last_name = ?, dob = ?, email = ?, phone = ?, password = ? WHERE id = ?',
-      [first_name, last_name, dob, email, phone, hashedPassword, req.user.id]
+      'UPDATE Person SET first_name = ?, last_name = ?, email = ?, phone = ?, password = ? WHERE id = ?',
+      [first_name, last_name, email, phone, hashedPassword, req.user.id]
     );
 
     // Redirect back to profile with a success message
-    res.render('profile.ejs', {
-      user: { ...req.user, first_name, last_name, dob, email, phone },
-      message: 'Changes have been successfully applied.'
+    res.render('profile.ejs', { 
+      user: { ...req.user, first_name, last_name, email, phone }, 
+      message: 'Changes have been successfully applied.' 
     });
   } catch (err) {
     console.error('Error updating profile:', err);
