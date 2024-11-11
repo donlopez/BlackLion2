@@ -1,14 +1,15 @@
 version: '3'
 services:
-  backend:
-    build: ./backend
+  app:
+    image: 654654449828.dkr.ecr.us-east-1.amazonaws.com/blackliondocker:latest
     ports:
-      - "3001:3001"
+      - "3000:3000"  # Adjust this port as necessary
     environment:
-      - NODE_ENV=development
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: us-east-1
+        awslogs-group: /ecs/blacklion-app
+        awslogs-stream-prefix: app
+
