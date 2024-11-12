@@ -1,22 +1,20 @@
-# Use the official AWS Lambda Node.js 16 base image
-FROM public.ecr.aws/lambda/nodejs:16
+# Use the official Node.js image as the base
+FROM node:18
 
-# Set the working directory
-WORKDIR /app
+# Set the working directory inside the container
+WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json to the container
+# Copy package.json and package-lock.json files
 COPY package*.json ./
 
-# Install dependencies
+# Install app dependencies
 RUN npm install
 
-# Copy the rest of the application code to the container
+# Copy the rest of the application code to the working directory
 COPY . .
 
-# Download the AWS Lambda Runtime Interface Emulator for local testing
-ADD https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie /usr/local/bin/aws-lambda-rie
-RUN chmod +x /usr/local/bin/aws-lambda-rie
+# Expose the port the app runs on
+EXPOSE 3000
 
-# Set the Lambda runtime entry point to use the handler
-ENTRYPOINT [ "/usr/local/bin/aws-lambda-rie", "node", "lambdaHandler.js" ]
-
+# Start the application
+CMD ["node", "server.js"]

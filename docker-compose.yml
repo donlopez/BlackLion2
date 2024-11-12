@@ -1,16 +1,26 @@
-version: '3.7'
-
-volumes:
-  lambda-node:
-    driver: local
+version: '3'
 
 services:
-  lambda-node:
-    image: public.ecr.aws/lambda/nodejs:16  # Use the latest compatible Lambda Node.js runtime image
-    environment:
-      - STAGE=local
+  app:
+    build: .
     ports:
-      - 9000:8080  # Map port 8080 (Lambda default) to 9000 for local access
+      - "${PORT}:${PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./src:/var/task  # Mount your local code directory to /var/task in the container
-    command: [ "/usr/local/bin/aws-lambda-rie", "node", "lambdaHandler.handler" ]  # Run Lambda with the emulator
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  mysql_data:
