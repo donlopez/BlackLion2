@@ -1,15 +1,16 @@
-version: '3'
-services:
-  app:
-    image: 654654449828.dkr.ecr.us-east-1.amazonaws.com/blackliondocker:latest
-    ports:
-      - "3000:3000"  # Adjust this port as necessary
-    environment:
-      - NODE_ENV=production
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: us-east-1
-        awslogs-group: /ecs/blacklion-app
-        awslogs-stream-prefix: app
+version: '3.7'
 
+volumes:
+  lambda-node:
+    driver: local
+
+services:
+  lambda-node:
+    image: public.ecr.aws/lambda/nodejs:16  # Use the latest compatible Lambda Node.js runtime image
+    environment:
+      - STAGE=local
+    ports:
+      - 9000:8080  # Map port 8080 (Lambda default) to 9000 for local access
+    volumes:
+      - ./src:/var/task  # Mount your local code directory to /var/task in the container
+    command: [ "/usr/local/bin/aws-lambda-rie", "node", "lambdaHandler.handler" ]  # Run Lambda with the emulator

@@ -1,0 +1,14 @@
+version: '3'
+services:
+  app:
+    image: 654654449828.dkr.ecr.us-east-1.amazonaws.com/blackliondocker:latest
+    ports:
+      - "9000:8080"  # Map 8080 internally to 9000 on your local machine for Lambda emulator
+    environment:
+      - NODE_ENV=production
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: us-east-1
+        awslogs-group: /ecs/blacklion-app
+        awslogs-stream-prefix: app
