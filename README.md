@@ -3,11 +3,14 @@
 ## Overview
 The **Black Lion Project** is an IT capstone project developed as part of a college course, focused on backend development and cloud deployment. This project handles data management, database connectivity, and efficient deployment practices using AWS services.
 
-## Project Structure
-This project uses a **Node.js** application containerized with **Docker** and deployed to **AWS Fargate** for scalable and managed container orchestration. The backend interacts with a **MySQL database** hosted on **Amazon RDS** to ensure reliability and security for data storage and access.
+## Project Goal
+The primary goal of the Black Lion Project is to create an **Event Planner** application where users can:
+- Create, edit, and manage events.
+- Track guest lists and assign event locations.
+- Organize various event-related activities.
 
-## Project Goals
-The main objective of the Black Lion Project is to provide a robust backend infrastructure that handles requests effectively and ensures seamless communication with the database. The deployment is designed to utilize cloud resources efficiently, meeting performance and scalability demands.
+## Project Structure
+This project uses a **Node.js** application containerized with **Docker** and deployed to **AWS Fargate** for scalable and managed container orchestration. The backend interacts with a **MySQL database** hosted on **Amazon RDS** to ensure reliability and security for data storage and access. **AWS CodePipeline** is also used to automate the deployment process.
 
 ## Process and Implementation
 
@@ -22,9 +25,9 @@ The main objective of the Black Lion Project is to provide a robust backend infr
    - The Node.js application is containerized using **Docker** to create a portable, consistent environment for deployment.
    - Configured Docker to manage dependencies and ensure application consistency across different environments.
 
-4. **Deployment to AWS Fargate:**
+4. **Deployment to AWS Fargate and CodePipeline:**
    - Deployed the Docker container to **AWS Fargate**, allowing for a fully managed container orchestration service.
-   - Fargate manages the container lifecycle, including scaling and infrastructure management, reducing the need for manual maintenance.
+   - Configured **AWS CodePipeline** to automate the deployment process, enabling continuous integration and delivery for the application.
 
 ## Future Enhancements
 - Implementing API Gateway with AWS Lambda to handle API requests.
@@ -35,3 +38,4 @@ The main objective of the Black Lion Project is to provide a robust backend infr
 - **MySQL on Amazon RDS** for database management.
 - **Docker** for containerization.
 - **AWS Fargate** for managed container deployment.
+- **AWS CodePipeline** for automated deployment.
