@@ -19,6 +19,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check
+app.get('/health', (req, res) => {
+  res.sendStatus(200);
+  console.log(`[Version ${version}]: New request => http://${hostname}:${port}${req.url}`);
+});
+
 // Serve static CSS, JS, and public files
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
