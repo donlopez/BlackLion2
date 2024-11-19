@@ -11,6 +11,7 @@ import { Strategy as LocalStrategy } from 'passport-local';
 dotenv.config();
 
 const app = express();
+const healthCheckApp = express(); // Separate app for health check
 const PORT = process.env.PORT || 3000;
 
 // Middleware to log requests
@@ -19,10 +20,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check
-app.get('/health', (req, res) => {
+// Health check on a separate server
+healthCheckApp.get('/health', (req, res) => {
   res.sendStatus(200);
-  console.log(`[Version ${version}]: New request => http://${hostname}:${port}${req.url}`);
+  console.log('Health check endpoint hit');
+});
+
+// Start the health check server on port 80
+healthCheckApp.listen(80, () => {
+  console.log('Health check server running on port 80');
 });
 
 // Serve static CSS, JS, and public files
@@ -38,7 +44,7 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || 'default_secret',
     resave: false,
-    saveUninitialized: false // Trailing comma added
+    saveUninitialized: false,
   })
 );
 app.use(passport.initialize());
@@ -53,7 +59,7 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0 // Trailing comma added
+  queueLimit: 0,
 });
 
 console.log('Connected to AWS RDS Database');
@@ -110,6 +116,7 @@ app.get('/', ensureAuthenticated, async (req, res) => {
   }
 });
 
+// Dashboard for a specific event
 app.get('/event/:id/dashboard', ensureAuthenticated, async (req, res) => {
   const eventId = req.params.id;
 
@@ -135,11 +142,6 @@ app.get('/profile', ensureAuthenticated, (req, res) => {
   res.render('profile.ejs', { user: req.user });
 });
 
-// Profile page route
-app.get('/profile', ensureAuthenticated, (req, res) => {
-  res.render('profile.ejs', { user: req.user });
-});
-
 // Update profile route
 app.post('/profile', ensureAuthenticated, async (req, res) => {
   try {
@@ -158,46 +160,6 @@ app.post('/profile', ensureAuthenticated, async (req, res) => {
   }
 });
 
-// Edit profile page
-app.get('/edit-profile', ensureAuthenticated, (req, res) => {
-  res.render('edit-profile.ejs', { user: req.user, message: '' });
-});
-
-app.post('/edit-profile', ensureAuthenticated, async (req, res) => {
-  try {
-    // Fetch the current user data to retain unmodified values
-    const [currentUserData] = await pool.query('SELECT * FROM Person WHERE id = ?', [req.user.id]);
-    const currentUser = currentUserData[0];
-    
-    // Destructure the request body and fall back to existing values if fields are empty
-    const {
-      first_name = currentUser.first_name,
-      last_name = currentUser.last_name,
-      email = currentUser.email,
-      phone = currentUser.phone,
-      password
-    } = req.body;
-
-    // Hash the password only if it was provided; otherwise, keep the existing password
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : currentUser.password;
-
-    // Update the database with modified or retained values (excluding dob)
-    await pool.query(
-      'UPDATE Person SET first_name = ?, last_name = ?, email = ?, phone = ?, password = ? WHERE id = ?',
-      [first_name, last_name, email, phone, hashedPassword, req.user.id]
-    );
-
-    // Redirect back to profile with a success message
-    res.render('profile.ejs', { 
-      user: { ...req.user, first_name, last_name, email, phone }, 
-      message: 'Changes have been successfully applied.' 
-    });
-  } catch (err) {
-    console.error('Error updating profile:', err);
-    res.redirect('/edit-profile');
-  }
-});
-
 // Login routes
 app.get('/login', (req, res) => res.render('login.ejs', { message: req.flash('error') }));
 app.post(
@@ -205,7 +167,7 @@ app.post(
   passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
-    failureFlash: true
+    failureFlash: true,
   })
 );
 
@@ -213,11 +175,11 @@ app.post(
 app.get('/register', (req, res) => res.render('register.ejs'));
 app.post('/register', async (req, res) => {
   try {
-    const { first_name, last_name, dob, username, password, email, phone } = req.body; // eslint-disable-line camelcase
+    const { first_name, last_name, dob, username, password, email, phone } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     await pool.query(
       'INSERT INTO Person (first_name, last_name, dob, username, password, email, phone) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [first_name, last_name, dob, username, hashedPassword, email, phone] // eslint-disable-line camelcase
+      [first_name, last_name, dob, username, hashedPassword, email, phone]
     );
     res.redirect('/login');
   } catch (err) {
@@ -231,66 +193,7 @@ app.delete('/logout', (req, res) => {
   req.logOut(() => res.redirect('/login'));
 });
 
-// Event creation routes
-app.get('/event', ensureAuthenticated, (req, res) => res.render('event.ejs', { user: req.user }));
-app.post('/event', ensureAuthenticated, async (req, res) => {
-  try {
-    const { name, event_date, start_time, end_time, guest_count, details, venue_name, address, max_capacity } = req.body; // eslint-disable-line camelcase, max-len
-    const [venueResult] = await pool.query(
-      'INSERT INTO Venue (name, address, max_capacity, owner) VALUES (?, ?, ?, ?)',
-      [venue_name, address, max_capacity, req.user.id] // eslint-disable-line camelcase
-    );
-    const venue_id = venueResult.insertId; // eslint-disable-line camelcase
-    await pool.query(
-      'INSERT INTO Event (name, venue_id, event_date, start_time, end_time, guest_count, details, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, venue_id, event_date, start_time, end_time, guest_count, details, req.user.id] // eslint-disable-line camelcase
-    );
-    res.redirect('/');
-  } catch (err) {
-    console.error('Error creating event:', err);
-    res.redirect('/event');
-  }
-});
-
-// Event editing routes
-app.get('/event/:id/edit', ensureAuthenticated, async (req, res) => {
-  try {
-    const [events] = await pool.query('SELECT * FROM Event WHERE id = ? AND created_by = ?', [req.params.id, req.user.id]);
-    if (events.length === 0) return res.redirect('/');
-    return res.render('edit-event.ejs', { user: req.user, event: events[0] });
-  } catch (err) {
-    console.error('Error fetching event for edit:', err);
-    res.redirect('/');
-    return null; // Add a return statement here for consistent return
-  }
-});
-
-app.put('/event/:id', ensureAuthenticated, async (req, res) => {
-  const { name, event_date, start_time, end_time, guest_count, details } = req.body; // eslint-disable-line camelcase, max-len
-  try {
-    await pool.query(
-      'UPDATE Event SET name = ?, event_date = ?, start_time = ?, end_time = ?, guest_count = ?, details = ? WHERE id = ? AND created_by = ?',
-      [name, event_date, start_time, end_time, guest_count, details, req.params.id, req.user.id] // eslint-disable-line camelcase
-    );
-    res.redirect('/');
-  } catch (err) {
-    console.error('Error updating event:', err);
-    res.redirect(`/event/${req.params.id}/edit`);
-  }
-});
-
-// Event deletion route
-app.delete('/event/:id', ensureAuthenticated, async (req, res) => {
-  try {
-    await pool.query('DELETE FROM Event WHERE id = ? AND created_by = ?', [req.params.id, req.user.id]);
-    res.redirect('/');
-  } catch (err) {
-    console.error('Error deleting event:', err);
-    res.redirect('/');
-  }
-});
-
-// Start the server
+// Start the main app server on port 3000
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Gracefully close the database pool on exit
