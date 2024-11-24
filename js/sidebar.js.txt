@@ -1,9 +1,8 @@
-function openSidebar() {
-  document.getElementById('sidebar').style.width = '250px';
-  document.getElementById('main').style.marginLeft = '250px';
-}
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main_container = document.getElementById('main_container');
+  const grid_container = document.getElementById('grid-container');
 
-function closeSidebar() {
-  document.getElementById('sidebar').style.width = '0';
-  document.getElementById('main').style.marginLeft = '0';
+  sidebar.classList.toggle('open');
+  main_container.classList.toggle('open');
 }

@@ -4,54 +4,45 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/resources/Black Lion Logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;1,500&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&style=filled">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/landing.css">
-    <title>Login</title>
+    <title>Home</title>
   </head>
-  
   <body>
+
     <!-- Header Start -->
     <header class="header">
       <div class="menu">
         <span class="material-icons" onclick="toggleSidebar()">menu</span>
-        <div class="material-icons"><img src="/resources/logo_lg.svg"></div>
+        <div class="material-icons"><img src="/images/logo_lg.svg"></div>
       </div>
       <div class="header-right" style="padding-right:25px;">
-        <% if (user != null) { %>
-          <p style="display: inline-block;"><%= user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1) %></p>
-          <a href="#" onclick="toggleMenu()" style="display: inline-block; text-decoration: none; cursor: pointer;">
-            <span class="material-icons">account_circle</span>
-          </a>
-          <div id="context-menu" class="context-menu">
-            <ul>
-              <li><a href="/profile">Profile</a></li>
-              <li><a href="#" onclick="document.getElementById('logout-form').submit();">Logout</a></li>
-            </ul>
-          </div>
-        <% } else {%>
-          <p style="display: inline-block;">Sign In</p>
-          <a href="#" onclick="document.getElementById('logout-form').submit();" style="display: inline-block; text-decoration: none; cursor: pointer;">
-            <span class="material-icons">account_circle</span>
-          </a>      
-        <% }%>
-        <form id="logout-form" action="/logout?_method=DELETE" method="POST" style="display: none;"></form>
+        <p style="display: inline-block;"><%= user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1) %></p>
+        <a href="#" onclick="document.getElementById('logout-form').submit();" style="display: inline-block; text-decoration: none; cursor: pointer;">
+          <span class="material-icons">account_circle</span>
+        </a>
+        <form id="logout-form" action="/logout?_method=DELETE" method="POST" style="display: none;"></form>        
       </div>
     </header>
     <!-- Header End -->
 
     <!-- Body Start -->
     <main class="main-container" id="main_container">
-      <div class="content-with-bg2">
-        <div class="login-form">
+      <div class="single-form-constrained">
+        <div class="login-card">
+          <div class="card-inner">
             <h1>Create a New Event</h1>
-            <form class="event-form-inner" id="event-form" action="/event" method="POST" style="display: inline-flex; vertical-align: top;">
-              <div style="vertical-align: top;">
+            <a href="#" onclick="document.getElementById('event-form').submit();" style="text-decoration: none; cursor: pointer;">
+              <span class="material-symbols-rounded">calendar_add_on</span>
+            </a>
+          </div>
+          <div>
+            <form id="event-form" action="/event" method="POST">
+              <div style="display: inline-block; vertical-align: top;">
                 <h2>Event Details</h2>
 
                 <label for="name">Event Name:</label>
@@ -72,8 +63,8 @@
                 <label for="details">Event Details:</label>
                 <textarea class="form-control" id="details" name="details" rows="4" placeholder="Event Details..."></textarea>
               </div>
-              <div class="vertical-separator"></div>
-              <div style="vertical-align: top;">
+              <div style="display: inline-block; vertical-align: top;"></div>
+              <div style="display: inline-block; vertical-align: top;">
                 <h2>Venue Details</h2>
                 
                 <label for="venue_name">Venue Name:</label>
@@ -86,12 +77,7 @@
                 <input class="form-control" type="number" id="max_capacity" name="max_capacity" required>
               </div>
             </form>
-            <p style="visibility: hidden;">Black Lion Group excels in the event planning industry by combining creativity with meticulous attention to detail. Unlike other event planning companies, Black Lion Group offers personalized services tailored to the unique needs and visions of each client. Their expertise in coordinating various types of events ensures that every aspect, from logistics to aesthetics, is handled flawlessly.</p>
-            <div style="margin-top: 20px;">
-              <a href="#" onclick="document.getElementById('event-form').submit();" style="text-decoration: none; cursor: pointer;">
-                <span class="material-symbols-rounded">calendar_add_on</span> ADD EVENT
-              </a>
-            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -106,19 +92,20 @@
           </a>
         </li><br>
         <li class="list-item">
-          <a href="/my_events">
-            <span class="material-symbols-rounded">upcoming</span> MY EVENTS
-          </a>
-        </li><br>
-        <li class="list-item">
           <a href="/event">
             <span class="material-symbols-rounded">event</span> PLANNING
           </a>
         </li><br>
+        <li><a href="/profile">Profile</a></li>
+        <li class="list-item">
+          <a href="#" onclick="document.getElementById('logout-form').submit();">
+            <span class="material-symbols-rounded">logout</span> LOGOUT
+          </a>
+        </li>
       </ul>
     </nav>
     <!-- Nav End -->
-  
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.40.0/apexcharts.min.js"></script>
     <script src="/js/app.js"></script>
     <script src="/js/chart.js"></script>
@@ -126,7 +113,6 @@
     <script src="/js/sidebar.js"></script>
     <script src="/js/table.js"></script>
     <script src="/js/card.js"></script>
-    <script src="/js/world_clock.js"></script>
-    <script src="/js/contextMenu.js"></script>
+    
   </body>
 </html>
