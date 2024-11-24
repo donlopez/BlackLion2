@@ -70,7 +70,9 @@ passport.deserializeUser(async (id, done) => {
 
 // Middleware to ensure authenticated routes
 function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) return next();
+  if (req.isAuthenticated()) {
+    return next();
+  }
   res.redirect('/login');
 }
 
@@ -106,7 +108,9 @@ app.post('/register', async (req, res) => {
 app.get('/my_events', ensureAuthenticated, async (req, res) => {
   try {
     const [events] = await pool.query(
-      `SELECT Event.id, Event.name, Event.event_date AS date, Event.start_time, Event.end_time, Event.details, Event.guest_count, Venue.name AS venue_name, Venue.Address AS address 
+      `SELECT Event.id, Event.name, Event.event_date AS date, Event.start_time, 
+       Event.end_time, Event.details, Event.guest_count, Venue.name AS venue_name, 
+       Venue.Address AS address 
        FROM Event 
        LEFT JOIN Venue ON Event.venue_id = Venue.id 
        WHERE Event.created_by = ? 
@@ -129,7 +133,7 @@ app.put('/profile', ensureAuthenticated, async (req, res) => {
     const { first_name, last_name, email, phone, username, password } = req.body;
 
     let updateQuery = 'UPDATE Person SET first_name = ?, last_name = ?, email = ?, phone = ?, username = ?';
-    let queryParams = [first_name, last_name, email, phone, username, req.user.id];
+    const queryParams = [first_name, last_name, email, phone, username, req.user.id];
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
