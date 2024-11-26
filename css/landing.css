@@ -165,3 +165,25 @@ article {
 .event-form-inner label {
     font-weight: bold;
 }
+
+/*Mobile Styles */
+@media (max-width: 768px) {
+    .content, .content-with-bg, .content-with-bg2, .content-with-bg3, .event-links, .event-card, #world-clock, article, .login-form, .login-form-inner, .event-form-inner {
+        margin: 10px;
+        padding: 15px;
+        width: 90%;
+    }
+    .event-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .event-info h3, .event-info p {
+        font-size: 16px;
+    }
+    .city {
+        font-size: 16px;
+    }
+    article, .login-form {
+        width: 100%;
+    }
+}

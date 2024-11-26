@@ -53,3 +53,22 @@
     transition: margin-left 0.5s;
     padding: 16px;
 }
+
+/* Darker background on mouse-over */
+#main a:hover {
+    background-color: #ddd;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70%;
+    }
+    .openbtn {
+        font-size: 16px;
+        padding: 10px;
+    }
+    #main {
+        padding: 8px;
+    }
+}

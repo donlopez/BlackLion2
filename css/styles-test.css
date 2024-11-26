@@ -127,3 +127,25 @@ nav.open {
     vertical-align: center;
     padding: 10px 10px 15px 0px;    
 }
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    .main-cards {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .card {
+        padding: 15px;
+    }
+    header {
+        height: auto;
+        padding: 10px;
+    }
+    nav {
+        width: 100%;
+    }
+}

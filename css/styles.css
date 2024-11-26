@@ -574,3 +574,30 @@ textarea.form-control {
     padding: 16px;
 }
 */
+
+/*Mobile Styles */
+@media (max-width: 768px) {
+    .main-cards, .form, .single-form, .charts {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .sidebar {
+        width: 70%;
+    }
+    .header {
+        padding: 10px;
+        justify-content: center;
+    }
+    .card, .charts-card {
+        padding: 15px;
+    }
+    .camera {
+        padding: 10px;
+    }
+    .photo-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-control {
+        min-width: auto;
+    }
+}
