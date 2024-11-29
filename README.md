@@ -77,5 +77,5 @@ This project uses a **Node.js** application deployed on an **AWS EC2 instance** 
 ## How to Deploy
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-repo/event-planner-app.git
-   cd event-planner-app
+   git clone https://github.com/donlopez/BlackLion2
+   cd BlackLion2
