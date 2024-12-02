@@ -21,7 +21,7 @@ This project uses a **Node.js** application deployed on an **AWS EC2 instance** 
 ## Architecture Diagram
 Below is the architecture diagram of the Black Lion IT Capstone Project deployment process:
 
-![Black Lion Project Architecture Diagram](./src/assets/Event_Planner_Diagram.png)
+![Black Lion Project Architecture Diagram](.resources/Event_Planner_Diagram.png)
 
 ### Workflow:
 1. **Node.js Backend**: Hosted on a **Kali Linux EC2 Instance**, connected to **Amazon RDS (MySQL)** for database operations.
