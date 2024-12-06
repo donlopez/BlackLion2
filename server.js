@@ -201,6 +201,23 @@ app.get('/event/:id/dashboard', ensureAuthenticated, async (req, res) => {
   }
 });
 
+app.put('/event/:id', ensureAuthenticated, async (req, res) => {
+  try {
+    const { name, event_date, start_time, end_time, guest_count, details } = req.body;
+
+    // Update the event in the database
+    await db.query(
+      'UPDATE Event SET name = ?, event_date = ?, start_time = ?, end_time = ?, guest_count = ?, details = ? WHERE id = ? AND created_by = ?',
+      [name, event_date, start_time, end_time, guest_count, details, req.params.id, req.user.id]
+    );
+
+    res.redirect('/my_events');
+  } catch (err) {
+    console.error('Error updating event:', err);
+    res.redirect(`/event/${req.params.id}/edit`);
+  }
+});
+
 app.delete('/event/:id', ensureAuthenticated, async (req, res) => {
   try {
     await db.query('DELETE FROM Event WHERE id = ? AND created_by = ?', [req.params.id, req.user.id]);
