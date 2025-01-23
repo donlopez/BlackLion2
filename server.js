@@ -21,8 +21,8 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10, // Adjust based on your needs
-  queueLimit: 0,       // Unlimited waiting requests in the queue
-  connectTimeout: 10000, // 10 seconds for establishing connections
+  queueLimit: 0, // Unlimited waiting requests in the queue
+  connectTimeout: 10000 // 10 seconds for establishing connections
 });
 
 // Middleware setup
@@ -33,7 +33,7 @@ app.use(
   session({
     secret: 'secret',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: false
   })
 );
 app.use(passport.initialize());
