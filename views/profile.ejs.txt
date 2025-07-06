@@ -12,8 +12,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/landing.css">
-    <title>Home</title>
+    <title>Login</title>
   </head>
+  
   <body>
     <!-- Header Start -->
     <header class="header">
@@ -33,7 +34,7 @@
               <li><a href="#" onclick="document.getElementById('logout-form').submit();">Logout</a></li>
             </ul>
           </div>
-        <% } else { %>
+        <% } else {%>
           <p style="display: inline-block;">Sign In</p>
           <a href="#" onclick="document.getElementById('logout-form').submit();" style="display: inline-block; text-decoration: none; cursor: pointer;">
             <span class="material-icons">account_circle</span>
@@ -46,48 +47,44 @@
 
     <!-- Body Start -->
     <main class="main-container" id="main_container">
-      <div class="content-with-bg3">
-        <article>
-          <div class="content">
-            <div class="event-links">
-              <h2 style="text-align: center;">My Events</h2>
-              <% if (events.length > 0) { %>
-                <% events.forEach(event => { %>
-                  <div class="event-card" style="display: flex; justify-content: space-between;">
-                    <div class="icon icon-shape background-red text-primary">
-                      <a href="/event/<%= event.EventID %>/dashboard"><span class="material-icons">celebration</span></a>
-                    </div>
-                    <div class="event-info">
-                      <h1><%= event.Name %></h1>
-                      <p><%= event.Details || 'No details provided' %></p>
-                    </div>
-                    <div class="event-info">
-                      <p><%= event.date ? event.date.toDateString() : 'No date' %></p>
-                    </div>
-                    <div class="icon icon-shape background-red text-primary">
-                      <a href="/event/<%= event.EventID %>/edit"><span class="material-icons" style="margin-right: 15px;">edit</span></a>
-                      <form action="/event/<%= event.EventID %>?_method=DELETE" method="POST">
-                        <button class="invs-btn" onclick="return confirm('Are you sure you want to delete this event?')">
-                          <span class="material-icons">delete</span>
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                <% }) %>
-              <% } else { %>
-                <div class="event-card" style="display: flex; justify-content: space-evenly;">
-                  <div class="icon icon-shape background-red text-primary" >
-                    <a href="/event"><span class="material-icons">celebration</span></a>
-                  </div>
-                  <div class="event-info">
-                    <h1>You haven't made any Events</h1>
-                  </div>
-                </div>
-              <% } %>
-              <p style="visibility: hidden;">Black Lion Group excels in the event planning industry by combining creativity with meticulous attention to detail. Unlike other event planning companies, Black Lion Group offers personalized services tailored to the unique needs and visions of each client. Their expertise in coordinating various types of events ensures that every aspect, from logistics to aesthetics, is handled flawlessly.</p>
+      <div class="content-with-bg2">
+        <div class="login-form">
+          <h1>User Profile</h1>
+          <form class="login-form-inner" action="/profile?_method=PUT" id="Edit-Profile-Form" method="POST">
+            <label for="first_name">First Name:</label>
+            <input class="form-control-profile" type="text" id="first_name" name="first_name" value="<%= user.first_name %>" disabled><br>
+            
+            <label for="last_name">Last Name:</label>
+            <input class="form-control-profile" type="text" id="last_name" name="last_name" value="<%= user.last_name %>" disabled><br>
+            
+            <label for="email">Email:</label>
+            <input class="form-control-profile" type="email" id="email" name="email" value="<%= user.email %>" disabled><br>
+
+            <label for="phone">Phone:</label>
+            <input class="form-control-profile" type="tel" id="phone" name="phone" value="<%= user.phone %>" disabled><br>
+
+            <label for="dob">Date Of Birth:</label>
+            <input class="form-control-profile" type="text" id="dateOfBirth" name="dateOfBirth" value="<%= user.dob.toDateString() %>" disabled><br>
+
+            <label for="username">Username:</label>
+            <input class="form-control-profile" type="text" id="username" name="username" value="<%= user.username %>" disabled><br>
+            
+            <label for="password">New Password:</label>
+            <input class="form-control-profile" type="password" id="password" name="password" placeholder="Enter new password (optional)" disabled><br>
+            
+            <div id="saveButton" class="card-buttons" style="visibility: hidden;">
+              <a href="#" onclick="document.getElementById('Edit-Profile-Form').submit();">
+                <span class="material-icons">save</span> SAVE CHANGES
+              </a>
             </div>
+          </form>
+          <p style="visibility: hidden;">Black Lion Group excels in the event planning industry by combining creativity with meticulous attention to detail. Unlike other event planning companies, Black Lion Group offers personalized services tailored to the unique needs and visions of each client. Their expertise in coordinating various types of events ensures that every aspect, from logistics to aesthetics, is handled flawlessly.</p>
+          <div class="card-buttons">
+            <a href="#" onclick="toggleProfileEditInputs()">
+              <span class="material-icons">edit</span> EDIT PROFILE
+            </a>
           </div>
-        </article>
+        </div>
       </div>
     </main>
     <!-- Body End -->

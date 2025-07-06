@@ -3,7 +3,7 @@ function toggleMenu() {
   menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
 }
 
-window.onclick = function(event) {
+window.onclick = function (event) {
   if (!event.target.matches('.material-icons')) {
     const dropdowns = document.getElementsByClassName('context-menu');
     for (let i = 0; i < dropdowns.length; i++) {

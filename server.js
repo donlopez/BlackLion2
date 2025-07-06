@@ -13,19 +13,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 80;
 
-// Connection Pool
+// MySQL connection pool
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10, // Adjust based on your needs
-  queueLimit: 0, // Unlimited waiting requests in the queue
-  connectTimeout: 10000 // 10 seconds for establishing connections
+  connectionLimit: 10,
+  queueLimit: 0,
+  connectTimeout: 10000
 });
 
-// Middleware setup
+// Middlewares
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 app.use(flash());
@@ -40,197 +40,259 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(methodOverride('_method'));
 
-// Serve static files
+// static resources
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
 app.use('/resources', express.static('resources'));
 
-// Passport configuration
+// Passport local strategy
 passport.use(
   new LocalStrategy(async (username, password, done) => {
     try {
-      const [rows] = await db.query('SELECT * FROM Person WHERE username = ?', [username]);
+      const [rows] = await db.query('SELECT * FROM Person WHERE Username = ?', [username]);
       if (rows.length === 0) return done(null, false, { message: 'No user with that username' });
 
       const user = rows[0];
-      const match = await bcrypt.compare(password, user.password);
-      return match ? done(null, user) : done(null, false, { message: 'Incorrect password' });
+      const match = await bcrypt.compare(password, user.Password);
+      return match
+        ? done(null, user)
+        : done(null, false, { message: 'Incorrect password' });
     } catch (err) {
       return done(err);
     }
   })
 );
 
-passport.serializeUser((user, done) => done(null, user.id));
+passport.serializeUser((user, done) => done(null, user.PersonID));
 passport.deserializeUser(async (id, done) => {
   try {
-    const [rows] = await db.query('SELECT * FROM Person WHERE id = ?', [id]);
-    return done(null, rows[0]);
+    const [rows] = await db.query('SELECT * FROM Person WHERE PersonID = ?', [id]);
+    done(null, rows[0]);
   } catch (err) {
-    return done(err);
+    done(err);
   }
 });
 
-// Middleware to protect routes
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) return next();
-  res.redirect('/login');
+  return res.redirect('/login');
 }
 
-// Routes
-app.get('/', (req, res) => res.render('landing.ejs', { user: req.user }));
+// Landing
+app.get('/', (req, res) => {
+  res.render('landing.ejs', {
+    user: req.user
+      ? { ...req.user, first_name: req.user.FirstName, last_name: req.user.LastName }
+      : null
+  });
+});
 
+// Auth
 app.get('/login', (req, res) => res.render('login.ejs', { message: req.flash('error') }));
+
 app.post(
   '/login',
   passport.authenticate('local', {
     successRedirect: '/my_events',
     failureRedirect: '/login',
-    failureFlash: true,
+    failureFlash: true
   })
 );
 
 app.get('/register', (req, res) => res.render('register.ejs'));
+
 app.post('/register', async (req, res) => {
   try {
     const { first_name, last_name, dob, username, password, email, phone } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     await db.query(
-      'INSERT INTO Person (first_name, last_name, dob, username, password, email, phone) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      `INSERT INTO Person (FirstName, LastName, DOB, Username, Password, Email, Phone)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [first_name, last_name, dob, username, hashedPassword, email, phone]
     );
-    res.redirect('/login');
+    return res.redirect('/login');
   } catch (err) {
     console.error('Error registering user:', err);
-    res.redirect('/register');
+    return res.redirect('/register');
   }
 });
 
+// My Events
 app.get('/my_events', ensureAuthenticated, async (req, res) => {
   try {
     const [events] = await db.query(
-      `SELECT Event.id, Event.name, Event.event_date AS date, Event.start_time, Event.end_time, Event.details, Event.guest_count, Venue.name AS venue_name, Venue.address AS address 
-       FROM Event 
-       LEFT JOIN Venue ON Event.venue_id = Venue.id 
-       WHERE Event.created_by = ? 
-       ORDER BY Event.event_date ASC`,
-      [req.user.id]
+      `SELECT Event.EventID, Event.Name, Event.EventDate AS date, Event.StartTime, Event.EndTime, 
+              Event.Details, Event.GuestCount,
+              Venue.Name AS venue_name, Venue.Address AS address
+       FROM Event
+       LEFT JOIN Venue ON Event.VenueID = Venue.VenueID
+       WHERE Event.CreatedByID = ?
+       ORDER BY Event.EventDate ASC`,
+      [req.user.PersonID]
     );
-    res.render('index.ejs', { user: req.user, events });
+    return res.render('index.ejs', {
+      user: { ...req.user, first_name: req.user.FirstName, last_name: req.user.LastName },
+      events
+    });
   } catch (err) {
     console.error('Error fetching events:', err);
-    res.redirect('/login');
+    return res.redirect('/login');
   }
 });
 
-app.get('/profile', ensureAuthenticated, (req, res) => {
-  res.render('profile.ejs', { user: req.user });
-});
+// Profile
+app.get('/profile', ensureAuthenticated, (req, res) => res.render('profile.ejs', {
+  user: { ...req.user, first_name: req.user.FirstName, last_name: req.user.LastName }
+}));
 
 app.put('/profile', ensureAuthenticated, async (req, res) => {
   try {
     const { first_name, last_name, email, phone, username, password } = req.body;
 
-    const queryParams = [first_name, last_name, email, phone, username, req.user.id];
-    let query = 'UPDATE Person SET first_name = ?, last_name = ?, email = ?, phone = ?, username = ?';
+    let query = `
+      UPDATE Person SET FirstName = ?, LastName = ?, Email = ?, Phone = ?, Username = ?`;
+    const params = [first_name, last_name, email, phone, username];
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
-      query += ', password = ?';
-      queryParams.splice(queryParams.length - 1, 0, hashedPassword);
+      query += ', Password = ?';
+      params.push(hashedPassword);
     }
+    query += ' WHERE PersonID = ?';
+    params.push(req.user.PersonID);
 
-    query += ' WHERE id = ?';
-    await db.query(query, queryParams);
+    await db.query(query, params);
 
-    res.redirect('/profile');
+    // propagate to venue
+    await db.query(
+      'UPDATE Venue SET Email = ?, Phone = ? WHERE OwnerID = ?',
+      [email, phone, req.user.PersonID]
+    );
+
+    return res.redirect('/profile');
   } catch (err) {
     console.error('Error updating profile:', err);
-    res.redirect('/profile');
+    return res.redirect('/profile');
   }
 });
 
-app.get('/event', ensureAuthenticated, (req, res) => res.render('event.ejs', { user: req.user }));
+// Create Event
+app.get('/event', ensureAuthenticated, (req, res) => res.render('event.ejs', {
+  user: { ...req.user, first_name: req.user.FirstName, last_name: req.user.LastName }
+}));
+
 app.post('/event', ensureAuthenticated, async (req, res) => {
   try {
     const { name, event_date, start_time, end_time, guest_count, details, venue_name, address, max_capacity } = req.body;
 
+    const ownerEmail = req.user.Email;
+    const ownerPhone = req.user.Phone;
+
     const [venueResult] = await db.query(
-      'INSERT INTO Venue (name, address, max_capacity, owner) VALUES (?, ?, ?, ?)',
-      [venue_name, address, max_capacity, req.user.id]
+      `INSERT INTO Venue (Name, Address, MaxCapacity, Availability, OwnerID, Email, Phone)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [venue_name, address, max_capacity, 1, req.user.PersonID, ownerEmail, ownerPhone]
     );
 
     await db.query(
-      'INSERT INTO Event (name, venue_id, event_date, start_time, end_time, guest_count, details, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, venueResult.insertId, event_date, start_time, end_time, guest_count, details, req.user.id]
+      `INSERT INTO Event (Name, VenueID, EventDate, StartTime, EndTime, GuestCount, Details, CreatedByID)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, venueResult.insertId, event_date, start_time, end_time, guest_count, details, req.user.PersonID]
     );
 
-    res.redirect('/my_events');
+    return res.redirect('/my_events');
   } catch (err) {
     console.error('Error creating event:', err);
-    res.redirect('/event');
+    return res.redirect('/event');
   }
 });
 
+// Edit Event
 app.get('/event/:id/edit', ensureAuthenticated, async (req, res) => {
   try {
-    const [events] = await db.query('SELECT * FROM Event WHERE id = ? AND created_by = ?', [req.params.id, req.user.id]);
+    const [events] = await db.query(
+      'SELECT * FROM Event WHERE EventID = ? AND CreatedByID = ?',
+      [req.params.id, req.user.PersonID]
+    );
     if (events.length === 0) return res.redirect('/my_events');
-    res.render('edit-event.ejs', { user: req.user, event: events[0] });
+    return res.render('edit-event.ejs', {
+      user: { ...req.user, first_name: req.user.FirstName, last_name: req.user.LastName },
+      event: events[0]
+    });
   } catch (err) {
     console.error('Error fetching event for edit:', err);
-    res.redirect('/my_events');
+    return res.redirect('/my_events');
   }
 });
 
+// Dashboard
 app.get('/event/:id/dashboard', ensureAuthenticated, async (req, res) => {
   try {
     const [events] = await db.query(
-      `SELECT Event.id, Event.name, Event.event_date AS date, Event.start_time, Event.end_time, Event.details, Event.guest_count, Venue.name AS venue_name, Venue.address AS address 
+      `SELECT Event.EventID, Event.Name, Event.EventDate AS date, Event.StartTime, Event.EndTime, 
+              Event.Details, Event.GuestCount,
+              Venue.Name AS venue_name, Venue.Address AS address
        FROM Event
-       LEFT JOIN Venue ON Event.venue_id = Venue.id
-       WHERE Event.id = ? AND created_by = ?`,
-      [req.params.id, req.user.id]
+       LEFT JOIN Venue ON Event.VenueID = Venue.VenueID
+       WHERE Event.EventID = ? AND Event.CreatedByID = ?`,
+      [req.params.id, req.user.PersonID]
     );
 
     if (events.length === 0) return res.redirect('/my_events');
-    res.render('dashboard.ejs', { user: req.user, event: events[0] });
+
+    const event = events[0];
+    return res.render('dashboard.ejs', {
+      user: { ...req.user, first_name: req.user.FirstName, last_name: req.user.LastName },
+      event: {
+        name: event.Name || 'Unnamed Event',
+        details: event.Details || 'No details provided',
+        date: event.date,
+        venue_name: event.venue_name,
+        address: event.address,
+        guest_count: event.GuestCount || 0
+      }
+    });
   } catch (err) {
     console.error('Error loading dashboard:', err);
-    res.redirect('/my_events');
+    return res.redirect('/my_events');
   }
 });
 
+// Update Event
 app.put('/event/:id', ensureAuthenticated, async (req, res) => {
   try {
     const { name, event_date, start_time, end_time, guest_count, details } = req.body;
-
-    // Update the event in the database
     await db.query(
-      'UPDATE Event SET name = ?, event_date = ?, start_time = ?, end_time = ?, guest_count = ?, details = ? WHERE id = ? AND created_by = ?',
-      [name, event_date, start_time, end_time, guest_count, details, req.params.id, req.user.id]
+      `UPDATE Event
+       SET Name = ?, EventDate = ?, StartTime = ?, EndTime = ?, GuestCount = ?, Details = ?
+       WHERE EventID = ? AND CreatedByID = ?`,
+      [name, event_date, start_time, end_time, guest_count, details, req.params.id, req.user.PersonID]
     );
-
-    res.redirect('/my_events');
+    return res.redirect('/my_events');
   } catch (err) {
     console.error('Error updating event:', err);
-    res.redirect(`/event/${req.params.id}/edit`);
+    return res.redirect(`/event/${req.params.id}/edit`);
   }
 });
 
+// Delete Event
 app.delete('/event/:id', ensureAuthenticated, async (req, res) => {
   try {
-    await db.query('DELETE FROM Event WHERE id = ? AND created_by = ?', [req.params.id, req.user.id]);
-    res.redirect('/my_events');
+    await db.query(
+      'DELETE FROM Event WHERE EventID = ? AND CreatedByID = ?',
+      [req.params.id, req.user.PersonID]
+    );
+    return res.redirect('/my_events');
   } catch (err) {
     console.error('Error deleting event:', err);
-    res.redirect('/my_events');
+    return res.redirect('/my_events');
   }
 });
 
+// Logout
 app.delete('/logout', (req, res) => {
   req.logOut(() => res.redirect('/login'));
 });
 
-// Start the server
+// Server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

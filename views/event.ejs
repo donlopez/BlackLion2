@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/resources/Black Lion Logo.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;1,500&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&style=filled">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/landing.css">
-    <title>Login</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" type="image/x-icon" href="/resources/Black Lion Logo.png"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;1,500&display=swap"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&style=filled"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+    <link rel="stylesheet" href="/css/landing.css"/>
+    <title>Create Event</title>
   </head>
   
   <body>
@@ -20,7 +20,7 @@
     <header class="header">
       <div class="menu">
         <span class="material-icons" onclick="toggleSidebar()">menu</span>
-        <div class="material-icons"><img src="/resources/logo_lg.svg"></div>
+        <div class="material-icons"><img src="/resources/logo_lg.svg" /></div>
       </div>
       <div class="header-right" style="padding-right:25px;">
         <% if (user != null) { %>
@@ -34,12 +34,12 @@
               <li><a href="#" onclick="document.getElementById('logout-form').submit();">Logout</a></li>
             </ul>
           </div>
-        <% } else {%>
+        <% } else { %>
           <p style="display: inline-block;">Sign In</p>
           <a href="#" onclick="document.getElementById('logout-form').submit();" style="display: inline-block; text-decoration: none; cursor: pointer;">
             <span class="material-icons">account_circle</span>
           </a>      
-        <% }%>
+        <% } %>
         <form id="logout-form" action="/logout?_method=DELETE" method="POST" style="display: none;"></form>
       </div>
     </header>
@@ -49,49 +49,51 @@
     <main class="main-container" id="main_container">
       <div class="content-with-bg2">
         <div class="login-form">
-            <h1>Create a New Event</h1>
-            <form class="event-form-inner" id="event-form" action="/event" method="POST" style="display: inline-flex; vertical-align: top;">
-              <div style="vertical-align: top;">
-                <h2>Event Details</h2>
+          <h1>Create a New Event</h1>
+          <form class="event-form-inner" id="event-form" action="/event" method="POST" style="display: inline-flex; vertical-align: top;">
+            <div style="vertical-align: top;">
+              <h2>Event Details</h2>
 
-                <label for="name">Event Name:</label>
-                <input class="form-control" type="text" id="name" name="name" required>
+              <label for="name">Event Name:</label>
+              <input class="form-control" type="text" id="name" name="name" required>
 
-                <label for="event_date">Event Date:</label>
-                <input class="form-control" type="date" id="event_date" name="event_date" required>
+              <label for="event_date">Event Date:</label>
+              <input class="form-control" type="date" id="event_date" name="event_date" required>
 
-                <label for="start_time">Start Time:</label>
-                <input class="form-control" type="time" id="start_time" name="start_time" required>
+              <label for="start_time">Start Time:</label>
+              <input class="form-control" type="time" id="start_time" name="start_time" required>
 
-                <label for="end_time">End Time:</label>
-                <input class="form-control" type="time" id="end_time" name="end_time" required>
+              <label for="end_time">End Time:</label>
+              <input class="form-control" type="time" id="end_time" name="end_time" required>
 
-                <label for="guest_count">Guest Count:</label>
-                <input class="form-control" type="number" id="guest_count" name="guest_count" required>
+              <label for="guest_count">Guest Count:</label>
+              <input class="form-control" type="number" id="guest_count" name="guest_count" required>
 
-                <label for="details">Event Details:</label>
-                <textarea class="form-control" id="details" name="details" rows="4" placeholder="Event Details..."></textarea>
-              </div>
-              <div class="vertical-separator"></div>
-              <div style="vertical-align: top;">
-                <h2>Venue Details</h2>
-                
-                <label for="venue_name">Venue Name:</label>
-                <input class="form-control" type="text" id="venue_name" name="venue_name" required>
-
-                <label for="address">Address:</label>
-                <input class="form-control" type="text" id="address" name="address" required>
-
-                <label for="max_capacity">Max Capacity:</label>
-                <input class="form-control" type="number" id="max_capacity" name="max_capacity" required>
-              </div>
-            </form>
-            <p style="visibility: hidden;">Black Lion Group excels in the event planning industry by combining creativity with meticulous attention to detail. Unlike other event planning companies, Black Lion Group offers personalized services tailored to the unique needs and visions of each client. Their expertise in coordinating various types of events ensures that every aspect, from logistics to aesthetics, is handled flawlessly.</p>
-            <div style="margin-top: 20px;">
-              <a href="#" onclick="document.getElementById('event-form').submit();" style="text-decoration: none; cursor: pointer;">
-                <span class="material-symbols-rounded">calendar_add_on</span> ADD EVENT
-              </a>
+              <label for="details">Event Details:</label>
+              <textarea class="form-control" id="details" name="details" rows="4" placeholder="Event Details..."></textarea>
             </div>
+            <div class="vertical-separator"></div>
+            <div style="vertical-align: top;">
+              <h2>Venue Details</h2>
+              
+              <label for="venue_name">Venue Name:</label>
+              <input class="form-control" type="text" id="venue_name" name="venue_name" required>
+
+              <label for="address">Address:</label>
+              <input class="form-control" type="text" id="address" name="address" required>
+
+              <label for="max_capacity">Max Capacity:</label>
+              <input class="form-control" type="number" id="max_capacity" name="max_capacity" required>
+            </div>
+          </form>
+          <p style="visibility: hidden;">
+            Black Lion Group excels in the event planning industry by combining creativity with meticulous attention to detail. Unlike other event planning companies, Black Lion Group offers personalized services tailored to the unique needs and visions of each client.
+          </p>
+          <div style="margin-top: 20px;">
+            <a href="#" onclick="document.getElementById('event-form').submit();" style="text-decoration: none; cursor: pointer;">
+              <span class="material-symbols-rounded">calendar_add_on</span> ADD EVENT
+            </a>
+          </div>
         </div>
       </div>
     </main>
@@ -118,7 +120,7 @@
       </ul>
     </nav>
     <!-- Nav End -->
-  
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.40.0/apexcharts.min.js"></script>
     <script src="/js/app.js"></script>
     <script src="/js/chart.js"></script>
